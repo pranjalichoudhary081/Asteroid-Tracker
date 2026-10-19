@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090e18">
+  <meta name="description" content="A live dashboard for near-Earth asteroids, powered by NASA's Near Earth Object Web Service.">
+  <title>Orbit Watch — Near-Earth Object Tracker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    :root{color-scheme:dark;--bg:#090e18;--panel:#0e1522;--panel2:#111b2a;--line:#202c3d;--text:#f2f5f8;--muted:#8794a7;--dim:#526075;--lime:#c8f169;--cyan:#70d9ed;--amber:#ffb661;--red:#ff7e73;--mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Space Grotesk',sans-serif}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;background-image:radial-gradient(ellipse at 78% 0%,rgba(33,75,107,.15),transparent 33rem),radial-gradient(ellipse at 12% 24%,rgba(112,217,237,.035),transparent 28rem)}button,input,select{font:inherit}button{cursor:pointer}a{color:inherit}
+    .shell{max-width:1440px;margin:auto;padding:0 38px 48px}.topbar{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(126,148,176,.15)}.brand{display:flex;align-items:center;gap:12px;text-decoration:none}.brand-mark{height:34px;width:34px;border:1px solid var(--lime);border-radius:50%;position:relative;display:grid;place-items:center}.brand-mark:before{content:'';width:8px;height:8px;background:var(--lime);border-radius:50%;box-shadow:0 0 15px #c8f16988}.brand-mark:after{content:'';position:absolute;width:42px;height:15px;border:1px solid #c8f16988;border-radius:50%;transform:rotate(-32deg)}.brand-name{font:600 16px var(--display);letter-spacing:.04em}.brand-name span{color:var(--lime)}.top-right{display:flex;align-items:center;gap:20px}.live-label,.eyebrow,.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.11em}.live-label{font-size:10px;color:#aab6c4;display:flex;align-items:center;gap:9px}.pulse{width:7px;height:7px;background:var(--lime);border-radius:50%;box-shadow:0 0 0 4px #c8f16916;animation:pulse 2s infinite}@keyframes pulse{50%{box-shadow:0 0 0 7px #c8f16900}}.date-pill{border:1px solid var(--line);border-radius:4px;color:#aab6c4;padding:8px 11px;font:10px var(--mono);letter-spacing:.05em}
+    .hero{display:flex;justify-content:space-between;align-items:center;padding:44px 0 28px;gap:30px}.eyebrow{font-size:10px;color:var(--cyan);margin:0 0 13px}.hero h1{font:500 clamp(31px,4vw,48px)/1.08 var(--display);letter-spacing:-.045em;margin:0}.hero h1 em{font-style:normal;color:var(--lime)}.hero-copy{color:var(--muted);font-size:13px;margin:13px 0 0;max-width:540px;line-height:1.65}.range-control{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.range-control .mono{color:var(--dim);font-size:9px;margin-right:3px}.range-btn{padding:9px 13px;background:transparent;border:1px solid var(--line);border-radius:3px;color:#aab6c4;font:10px var(--mono);transition:.2s}.range-btn:hover,.range-btn.active{border-color:#c8f1699a;color:var(--lime);background:#c8f1690c}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{background:linear-gradient(135deg,#111a28,#0e1521);border:1px solid var(--line);border-radius:5px;min-height:121px;padding:17px 18px;position:relative;overflow:hidden}.stat:after{content:'';position:absolute;right:-28px;top:-33px;width:94px;height:94px;border:1px solid rgba(200,241,105,.08);border-radius:50%;box-shadow:0 0 0 12px rgba(200,241,105,.018),0 0 0 25px rgba(200,241,105,.012)}.stat-label{font:9px var(--mono);color:var(--muted);letter-spacing:.1em;text-transform:uppercase}.stat-value{font:600 30px/.95 var(--display);letter-spacing:-.04em;margin-top:18px}.stat-value small{font:500 12px var(--mono);letter-spacing:0;color:var(--muted)}.stat-sub{font-size:10px;color:var(--dim);margin-top:9px}.accent-lime{color:var(--lime)}.accent-cyan{color:var(--cyan)}.accent-amber{color:var(--amber)}
+    .main-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(310px,.9fr);gap:14px;margin-top:14px}.panel{border:1px solid var(--line);border-radius:5px;background:rgba(14,21,34,.88)}.panel-head{padding:17px 19px 13px;border-bottom:1px solid rgba(126,148,176,.12);display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-title{font:500 13px var(--display);letter-spacing:.01em;margin:0}.panel-kicker{font:9px var(--mono);color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:5px}.chart-wrap{height:196px;padding:18px 18px 10px}.chart-wrap svg{width:100%;height:100%;overflow:visible}.grid-line{stroke:#253244;stroke-width:1;stroke-dasharray:3 5}.chart-label{fill:#68778d;font:9px var(--mono)}.chart-bar{fill:#70d9ed;opacity:.78;transition:opacity .2s}.chart-bar:hover{opacity:1}.chart-dot{fill:var(--lime);stroke:#0e1522;stroke-width:3}.chart-baseline{stroke:#324155}.chart-tip{font:9px var(--mono);fill:#f1f4f7}.chart-legend{font:9px var(--mono);color:var(--dim);display:flex;align-items:center;gap:8px}.legend-dot{width:6px;height:6px;background:var(--cyan);border-radius:50%}
+    .side-panel{display:flex;flex-direction:column}.side-content{padding:19px;flex:1;display:flex;flex-direction:column;justify-content:space-between}.orbit-visual{height:137px;position:relative;display:grid;place-items:center;overflow:hidden}.orbit-sun{height:44px;width:44px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#fff7c8,#f5a844 42%,#a94e27 80%);box-shadow:0 0 28px #ffb66166,0 0 72px #ffb66122;z-index:2}.orbit-ring{position:absolute;border:1px solid #364359;border-radius:50%;transform:rotate(-15deg)}.orbit-ring.one{width:147px;height:79px}.orbit-ring.two{width:229px;height:112px;border-color:#263348}.orbit-earth{width:10px;height:10px;background:var(--cyan);border-radius:50%;box-shadow:0 0 14px #70d9ed;position:absolute;top:29px;left:calc(50% + 64px)}.orbit-asteroid{height:6px;width:6px;background:var(--lime);border-radius:50%;position:absolute;left:calc(50% - 94px);bottom:37px;box-shadow:0 0 9px var(--lime)}.orbit-caption{position:absolute;bottom:2px;left:0;right:0;display:flex;justify-content:space-between;font:8px var(--mono);letter-spacing:.09em;color:var(--dim);text-transform:uppercase}.close-card{border-top:1px solid rgba(126,148,176,.13);padding-top:15px}.close-label{font:9px var(--mono);color:var(--dim);text-transform:uppercase;letter-spacing:.12em}.close-name{font:500 18px var(--display);margin:9px 0 6px}.close-distance{font:500 24px var(--display);color:var(--cyan);letter-spacing:-.03em}.close-meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;color:var(--muted);font:9px var(--mono)}.badge{font:8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 7px;border-radius:2px;color:var(--lime);background:#c8f16912;border:1px solid #c8f16933}.badge.hazard{color:var(--amber);background:#ffb66112;border-color:#ffb66140}
+    .list-panel{margin-top:14px}.list-tools{display:flex;gap:9px;align-items:center}.search-box{position:relative}.search-box:before{content:'⌕';position:absolute;left:10px;top:6px;color:var(--dim);font-size:17px}.search-box input{background:#0b111b;border:1px solid var(--line);border-radius:3px;color:var(--text);padding:8px 10px 8px 28px;width:190px;font-size:10px;outline:none}.search-box input:focus{border-color:#70d9ed88}.select{background:#0b111b;border:1px solid var(--line);border-radius:3px;color:#aab6c4;padding:8px 9px;font:9px var(--mono);outline:none}.toggle{border:1px solid var(--line);border-radius:3px;background:#0b111b;color:#9ba8b9;padding:8px 9px;font:9px var(--mono)}.toggle.active{border-color:#ffb66177;color:var(--amber)}.table-scroll{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:690px}.table th{font:8px var(--mono);color:var(--dim);letter-spacing:.11em;text-transform:uppercase;text-align:left;padding:11px 18px;border-bottom:1px solid rgba(126,148,176,.12);font-weight:400}.table td{font-size:11px;color:#c3cbd5;padding:13px 18px;border-bottom:1px solid rgba(126,148,176,.08);white-space:nowrap}.table tr:last-child td{border-bottom:0}.table tbody tr{transition:background .15s;cursor:pointer}.table tbody tr:hover{background:#ffffff05}.object-name{font:500 12px var(--display);color:var(--text)}.object-id{font:9px var(--mono);color:var(--dim);margin-top:4px}.table .mono{font-size:9px;letter-spacing:.02em;color:#a9b5c5}.risk-dot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:7px;vertical-align:1px;background:var(--lime)}.risk-dot.yes{background:var(--amber);box-shadow:0 0 7px #ffb66177}.distance-cell{color:var(--cyan)!important}.empty-row{text-align:center!important;color:var(--muted)!important;padding:35px!important}.table-footer{border-top:1px solid rgba(126,148,176,.12);padding:12px 18px;display:flex;justify-content:space-between;font:9px var(--mono);color:var(--dim)}.source{display:flex;align-items:center;gap:7px}.source-mark{font:700 8px var(--display);color:var(--bg);background:#ddd;border-radius:50%;height:14px;width:14px;display:grid;place-items:center}.refresh{background:transparent;border:0;color:var(--cyan);font:9px var(--mono)}.refresh:hover{text-decoration:underline}.error{color:var(--amber)!important}.skeleton{background:linear-gradient(90deg,#182333,#223146,#182333);background-size:200% 100%;animation:shimmer 1.4s infinite;color:transparent!important;border-radius:3px}@keyframes shimmer{to{background-position:-200% 0}}.footer{padding:20px 0;display:flex;justify-content:space-between;gap:20px;color:var(--dim);font-size:9px;border-top:1px solid rgba(126,148,176,.12);margin-top:20px}.footer a{color:#8291a4;text-decoration:none}.footer a:hover{color:var(--cyan)}.disclaimer{max-width:620px;text-align:right;line-height:1.5}.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);opacity:0;background:#172333;border:1px solid var(--line);padding:11px 15px;border-radius:4px;color:#dce4ec;font-size:11px;transition:.25s;pointer-events:none}.toast.show{transform:translate(-50%,0);opacity:1}
+    @media(max-width:900px){.shell{padding:0 22px 35px}.main-grid{grid-template-columns:1fr}.side-panel{min-height:250px}.stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.shell{padding:0 15px 28px}.topbar{height:68px}.hero{padding:32px 0 22px;display:block}.range-control{justify-content:flex-start;margin-top:22px}.stats{gap:8px}.stat{padding:14px;min-height:108px}.stat-value{font-size:25px}.panel-head{align-items:flex-start;flex-direction:column}.list-tools{width:100%;flex-wrap:wrap}.search-box{flex:1}.search-box input{width:100%}.footer{display:block}.disclaimer{text-align:left;margin-top:9px}.top-right{gap:10px}.date-pill{display:none}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Orbit Watch home"><span class="brand-mark"></span><span class="brand-name">ORBIT<span>WATCH</span></span></a>
+      <div class="top-right"><div class="live-label"><span class="pulse"></span> NASA NEO FEED</div><div class="date-pill" id="updated">CONNECTING…</div></div>
+    </header>
+    <section class="hero">
+      <div><p class="eyebrow">EARTH’S CLOSE NEIGHBORS / LIVE TRACKING</p><h1>What’s passing <em>near us?</em></h1><p class="hero-copy">Explore near-Earth asteroids approaching our planet. Track close passes, compare estimated sizes, and follow the latest observations from NASA.</p></div>
+      <div class="range-control"><span class="mono">WINDOW</span><button class="range-btn active" data-days="7">7 DAYS</button><button class="range-btn" data-days="3">3 DAYS</button></div>
+    </section>
+    <section class="stats" aria-label="Asteroid overview">
+      <article class="stat"><div class="stat-label">Objects in window</div><div class="stat-value accent-lime" id="stat-count">—</div><div class="stat-sub" id="stat-count-sub">Awaiting NASA feed</div></article>
+      <article class="stat"><div class="stat-label">Potentially hazardous</div><div class="stat-value accent-amber" id="stat-hazard">—</div><div class="stat-sub">NASA classification · this window</div></article>
+      <article class="stat"><div class="stat-label">Closest approach</div><div class="stat-value accent-cyan" id="stat-close">—</div><div class="stat-sub" id="stat-close-sub">Miss distance · kilometers</div></article>
+      <article class="stat"><div class="stat-label">Largest estimated</div><div class="stat-value" id="stat-largest">—</div><div class="stat-sub" id="stat-largest-sub">Maximum diameter · kilometers</div></article>
+    </section>
+    <section class="main-grid">
+      <article class="panel">
+        <div class="panel-head"><div><h2 class="panel-title">Close approaches by day</h2><div class="panel-kicker">Objects passing Earth · selected window</div></div><div class="chart-legend"><span class="legend-dot"></span> ASTEROIDS / DAY</div></div>
+        <div class="chart-wrap" id="chart" aria-label="Chart showing asteroid approaches by day"></div>
+      </article>
+      <article class="panel side-panel">
+        <div class="panel-head"><div><h2 class="panel-title">Earth encounter</h2><div class="panel-kicker">Nearest recorded pass in this window</div></div></div>
+        <div class="side-content"><div class="orbit-visual" aria-hidden="true"><span class="orbit-ring one"></span><span class="orbit-ring two"></span><span class="orbit-sun"></span><span class="orbit-earth"></span><span class="orbit-asteroid"></span><div class="orbit-caption"><span>☼ SUN</span><span>EARTH · NEO</span></div></div><div class="close-card" id="nearest"><div class="close-label">NEAREST PASS</div><div class="close-name">Waiting for data…</div><div class="close-distance">—</div><div class="close-meta"><span>—</span><span class="badge">—</span></div></div></div>
+      </article>
+    </section>
+    <section class="panel list-panel">
+      <div class="panel-head"><div><h2 class="panel-title">Tracked objects</h2><div class="panel-kicker" id="list-kicker">Loading close approaches</div></div><div class="list-tools"><label class="search-box"><input id="search" type="search" placeholder="Search asteroid…" aria-label="Search asteroids"></label><select class="select" id="sort" aria-label="Sort objects"><option value="distance">CLOSEST FIRST</option><option value="size">LARGEST FIRST</option><option value="date">SOONEST FIRST</option></select><button class="toggle" id="hazard-toggle" aria-pressed="false">⚠ HAZARDS ONLY</button></div></div>
+      <div class="table-scroll"><table class="table"><thead><tr><th>Object</th><th>Estimated size</th><th>Miss distance</th><th>Approach date</th><th>Relative speed</th><th>Hazard</th></tr></thead><tbody id="rows"><tr><td class="empty-row" colspan="6">Loading NASA’s near-Earth object data…</td></tr></tbody></table></div>
+      <div class="table-footer"><span id="result-count">—</span><button class="refresh" id="refresh">↻ REFRESH DATA</button></div>
+    </section>
+    <footer class="footer"><div class="source"><span class="source-mark">N</span> DATA: <a href="https://api.nasa.gov/" target="_blank" rel="noopener">NASA / JPL NEO Web Service</a></div><div class="disclaimer">Estimated diameter and close-approach values are observational estimates. “Potentially hazardous” is NASA’s classification and does not mean an impact is expected.</div></footer>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+    const API_KEY = 'DEMO_KEY';
+    const API = 'https://api.nasa.gov/neo/rest/v1/feed';
+    let objects = [], selectedDays = 7, onlyHazards = false;
+    const $ = id => document.getElementById(id);
+    const number = n => new Intl.NumberFormat('en-US',{maximumFractionDigits:0}).format(n);
+    const diameter = a => (a.estimated_diameter?.kilometers?.estimated_diameter_min + a.estimated_diameter?.kilometers?.estimated_diameter_max) / 2;
+    const maxDiameter = a => a.estimated_diameter?.kilometers?.estimated_diameter_max || 0;
+    const missKm = a => Number(a.close_approach_data?.[0]?.miss_distance?.kilometers || 0);
+    const closeDate = a => a.close_approach_data?.[0]?.close_approach_date || '';
+    const fmtDate = s => s ? new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(s+'T00:00:00Z')) : '—';
+    const distanceLabel = km => km < 1e6 ? `${number(km)} km` : `${(km/1e6).toFixed(2)}M km`;
+    const sizeLabel = km => km < .001 ? `${(km*1e3).toFixed(0)} m` : `${km.toFixed(2)} km`;
+    function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+    function setLoading(){ $('updated').textContent='SYNCING NASA DATA'; $('rows').innerHTML='<tr><td class="empty-row" colspan="6">Loading NASA’s near-Earth object data…</td></tr>'; }
+    async function loadData(){
+      setLoading();
+      const start=new Date(); start.setUTCHours(0,0,0,0);
+      const end=new Date(start); end.setUTCDate(end.getUTCDate()+selectedDays-1);
+      const iso=d=>d.toISOString().slice(0,10);
+      try{
+        const response=await fetch(`${API}?start_date=${iso(start)}&end_date=${iso(end)}&api_key=${API_KEY}`);
+        if(!response.ok){let detail='';try{detail=(await response.json()).error?.message||''}catch{};throw new Error(detail||`NASA returned ${response.status}`)}
+        const data=await response.json();
+        objects=Object.values(data.near_earth_objects||{}).flat().map(a=>({...a,approach:a.close_approach_data?.[0]})).filter(a=>a.approach);
+        $('updated').textContent=`UPDATED ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+        render();
+      }catch(error){
+        $('updated').textContent='FEED UNAVAILABLE';
+        $('rows').innerHTML=`<tr><td class="empty-row error" colspan="6">Could not load NASA’s feed. ${escapeHtml(error.message)} — check your connection or try again.</td></tr>`;
+        $('list-kicker').textContent='NASA feed unavailable'; $('result-count').textContent='No live data';
+        $('stat-count').textContent='—';$('stat-hazard').textContent='—';$('stat-close').textContent='—';$('stat-largest').textContent='—';$('chart').innerHTML='<div style="height:100%;display:grid;place-items:center;color:#8794a7;font-size:11px">Chart appears when live data is available.</div>';
+        $('nearest').innerHTML='<div class="close-label">NEAREST PASS</div><div class="close-name">Data unavailable</div><div class="close-distance">—</div><div class="close-meta"><span>Try refreshing the NASA feed</span></div>';
+      }
+    }
+    function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+    function render(){
+      const hazards=objects.filter(a=>a.is_potentially_hazardous_asteroid);
+      const nearest=[...objects].sort((a,b)=>missKm(a)-missKm(b))[0];
+      const largest=[...objects].sort((a,b)=>maxDiameter(b)-maxDiameter(a))[0];
+      $('stat-count').textContent=number(objects.length);$('stat-count-sub').textContent=`Across ${selectedDays} calendar days`;
+      $('stat-hazard').textContent=number(hazards.length);$('stat-close').textContent=nearest?distanceLabel(missKm(nearest)):'—';
+      $('stat-close-sub').textContent=nearest?`Closest · ${fmtDate(closeDate(nearest))}`:'Miss distance · kilometers';
+      $('stat-largest').textContent=largest?sizeLabel(maxDiameter(largest)):'—';
+      $('stat-largest-sub').textContent=largest?`${largest.name} · maximum estimate`:'Maximum diameter · kilometers';
+      if(nearest){$('nearest').innerHTML=`<div class="close-label">NEAREST PASS</div><div class="close-name">${escapeHtml(nearest.name)}</div><div class="close-distance">${distanceLabel(missKm(nearest))}</div><div class="close-meta"><span>${fmtDate(closeDate(nearest))} · ${sizeLabel(maxDiameter(nearest))} max</span><span class="badge ${nearest.is_potentially_hazardous_asteroid?'hazard':''}">${nearest.is_potentially_hazardous_asteroid?'HAZARDOUS':'MONITORED'}</span></div>`}
+      renderChart();renderTable();
+    }
+    function renderChart(){
+      const counts={};for(let i=0;i<selectedDays;i++){const d=new Date();d.setUTCHours(0,0,0,0);d.setUTCDate(d.getUTCDate()+i);counts[d.toISOString().slice(0,10)]=0}
+      objects.forEach(a=>{if(counts[closeDate(a)]!==undefined)counts[closeDate(a)]++});
+      const entries=Object.entries(counts), W=700,H=155,L=28,R=8,T=8,B=28, chartH=H-T-B, chartW=W-L-R, max=Math.max(2,...entries.map(x=>x[1]));
+      const gap=14,bw=(chartW-gap*(entries.length-1))/entries.length;
+      let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${entries.map(([d,n])=>`${fmtDate(d)}: ${n} asteroids`).join(', ')}">`;
+      for(let k=0;k<=2;k++){const y=T+chartH*k/2;svg+=`<line class="grid-line" x1="${L}" y1="${y}" x2="${W-R}" y2="${y}"/><text class="chart-label" x="0" y="${y+3}">${Math.round(max*(1-k/2))}</text>`}
+      entries.forEach(([date,count],i)=>{const x=L+i*(bw+gap), h=Math.max(count?4:1,chartH*count/max), y=T+chartH-h, label=new Date(date+'T00:00:00Z').toLocaleDateString(undefined,{weekday:'short',timeZone:'UTC'});svg+=`<rect class="chart-bar" x="${x}" y="${y}" width="${bw}" height="${h}" rx="2"><title>${fmtDate(date)} · ${count} objects</title></rect><circle class="chart-dot" cx="${x+bw/2}" cy="${y}" r="3"/><text class="chart-label" text-anchor="middle" x="${x+bw/2}" y="${H-7}">${label}</text>`});
+      svg+='</svg>';$('chart').innerHTML=svg;
+    }
+    function renderTable(){
+      const q=$('search').value.trim().toLowerCase(), sort=$('sort').value;
+      let list=objects.filter(a=>(!onlyHazards||a.is_potentially_hazardous_asteroid)&&(!q||a.name.toLowerCase().includes(q)||String(a.id).includes(q)));
+      list.sort(sort==='size'?(a,b)=>maxDiameter(b)-maxDiameter(a):sort==='date'?(a,b)=>closeDate(a).localeCompare(closeDate(b)): (a,b)=>missKm(a)-missKm(b));
+      $('list-kicker').textContent=`${objects.length} close approaches · ${selectedDays}-day window`;$('result-count').textContent=`SHOWING ${list.length} OF ${objects.length} OBJECTS`;
+      $('rows').innerHTML=list.length?list.slice(0,80).map(a=>`<tr title="Open asteroid details on NASA JPL" data-url="${escapeHtml(a.nasa_jpl_url)}"><td><div class="object-name">${escapeHtml(a.name)}</div><div class="object-id">SPK ID ${escapeHtml(a.id)}</div></td><td>${sizeLabel(diameter(a))} <span class="mono" style="color:#526075">AVG</span></td><td class="mono distance-cell">${distanceLabel(missKm(a))}</td><td class="mono">${fmtDate(closeDate(a))}</td><td class="mono">${number(Number(a.approach?.relative_velocity?.kilometers_per_hour||0))} km/h</td><td><span class="risk-dot ${a.is_potentially_hazardous_asteroid?'yes':''}"></span><span class="mono">${a.is_potentially_hazardous_asteroid?'YES':'NO'}</span></td></tr>`).join(''):`<tr><td class="empty-row" colspan="6">No objects match these filters.</td></tr>`;
+      $('rows').querySelectorAll('tr[data-url]').forEach(row=>row.addEventListener('click',()=>window.open(row.dataset.url,'_blank','noopener')));
+    }
+    document.querySelectorAll('.range-btn').forEach(btn=>btn.addEventListener('click',()=>{document.querySelector('.range-btn.active')?.classList.remove('active');btn.classList.add('active');selectedDays=Number(btn.dataset.days);loadData()}));
+    $('search').addEventListener('input',renderTable);$('sort').addEventListener('change',renderTable);
+    $('hazard-toggle').addEventListener('click',e=>{onlyHazards=!onlyHazards;e.currentTarget.classList.toggle('active',onlyHazards);e.currentTarget.setAttribute('aria-pressed',onlyHazards);renderTable()});
+    $('refresh').addEventListener('click',()=>{loadData();showToast('Refreshing the NASA NEO feed…')});
+    loadData();
+  </script>
+</body>
+</html>
